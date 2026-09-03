@@ -10,6 +10,7 @@ export type SiteSettings = {
   background_video_url: string | null;
   background_mobile_video_url: string | null;
   background_poster_url: string | null;
+  background_overlay_opacity: number;
 };
 
 export type MusicEntry = {

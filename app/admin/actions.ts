@@ -56,8 +56,22 @@ function normalizeSettingsError(message: string) {
   if (message.includes("background_mobile_video_url")) {
     return "The mobile video setting needs one quick Supabase update before it can save. Run the SQL in supabase/migrations/002_mobile_background_video.sql, then try again.";
   }
+  if (message.includes("background_overlay_opacity")) {
+    return "The background darkness setting needs one quick Supabase update before it can save. Run the SQL in supabase/migrations/003_background_overlay_opacity.sql, then try again.";
+  }
 
   return message;
+}
+
+function percentToOpacity(formData: FormData, key: string, fallback: number) {
+  const item = formData.get(key);
+  const percent = typeof item === "string" ? Number(item) : Number.NaN;
+
+  if (!Number.isFinite(percent)) {
+    return fallback;
+  }
+
+  return Math.min(Math.max(percent, 0), 90) / 100;
 }
 
 async function ensureSiteMediaBucket(supabase: Awaited<ReturnType<typeof requireAdmin>>) {
@@ -94,6 +108,7 @@ export async function updateSettings(formData: FormData) {
     background_video_url: value(formData, "background_video_url"),
     background_mobile_video_url: value(formData, "background_mobile_video_url"),
     background_poster_url: value(formData, "background_poster_url"),
+    background_overlay_opacity: percentToOpacity(formData, "background_overlay_opacity", 0.48),
     updated_at: new Date().toISOString()
   });
 

@@ -18,6 +18,7 @@ create table if not exists public.site_settings (
   background_video_url text,
   background_mobile_video_url text,
   background_poster_url text,
+  background_overlay_opacity numeric not null default 0.48,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -6,12 +6,22 @@ type BackgroundVideoProps = {
   videoUrl?: string | null;
   mobileVideoUrl?: string | null;
   posterUrl?: string | null;
+  overlayOpacity?: number | null;
 };
 
-export function BackgroundVideo({ videoUrl, mobileVideoUrl, posterUrl }: BackgroundVideoProps) {
+export function BackgroundVideo({
+  videoUrl,
+  mobileVideoUrl,
+  posterUrl,
+  overlayOpacity
+}: BackgroundVideoProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsGesture, setNeedsGesture] = useState(false);
   const effectiveMobileVideoUrl = mobileVideoUrl || videoUrl;
+  const safeOverlayOpacity =
+    typeof overlayOpacity === "number" && Number.isFinite(overlayOpacity)
+      ? Math.min(Math.max(overlayOpacity, 0), 0.9)
+      : 0.48;
 
   useEffect(() => {
     const videos = Array.from(
@@ -144,7 +154,7 @@ export function BackgroundVideo({ videoUrl, mobileVideoUrl, posterUrl }: Backgro
           className="absolute inset-0 z-20 cursor-default bg-transparent"
         />
       ) : null}
-      <div className="absolute inset-0 bg-black/58" />
+      <div className="absolute inset-0 bg-black" style={{ opacity: safeOverlayOpacity }} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.28)_62%,rgba(0,0,0,0.72)_100%)]" />
     </div>
   );

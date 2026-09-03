@@ -45,6 +45,37 @@ function SaveButton({ children = "Save" }: { children?: React.ReactNode }) {
   );
 }
 
+function NumberInput({
+  name,
+  label,
+  defaultValue,
+  min,
+  max,
+  step = 1
+}: {
+  name: string;
+  label: string;
+  defaultValue: number;
+  min: number;
+  max: number;
+  step?: number;
+}) {
+  return (
+    <label className="block text-xs uppercase tracking-[0.18em] text-white/56">
+      {label}
+      <input
+        name={name}
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        defaultValue={defaultValue}
+        className="mt-2 w-full border border-white/12 bg-white/7 px-3 py-3 text-sm normal-case tracking-normal text-white"
+      />
+    </label>
+  );
+}
+
 export function AdminDashboard({
   settings,
   music,
@@ -122,6 +153,13 @@ export function AdminDashboard({
                 name="background_poster_url"
                 label="Poster image URL"
                 defaultValue={settings.background_poster_url}
+              />
+              <NumberInput
+                name="background_overlay_opacity"
+                label="Background darkness %"
+                min={0}
+                max={90}
+                defaultValue={Math.round((settings.background_overlay_opacity ?? 0.48) * 100)}
               />
             </div>
             <div className="mt-7">
