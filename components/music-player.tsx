@@ -39,6 +39,10 @@ const playerOptions = {
   download: false
 };
 
+function shouldAutoplaySelectedTrack() {
+  return window.matchMedia("(min-width: 768px)").matches;
+}
+
 function buildPlayerUrl(url: string) {
   const playerUrl = new URL("https://w.soundcloud.com/player/");
   playerUrl.search = new URLSearchParams({
@@ -88,10 +92,15 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
         return;
       }
 
-      widget.bind("ready", () => {
-        widget.play();
-      });
-      widget.load(nextUrl, { ...playerOptions, auto_play: false });
+      const autoPlay = shouldAutoplaySelectedTrack();
+
+      if (autoPlay) {
+        widget.bind("ready", () => {
+          widget.play();
+        });
+      }
+
+      widget.load(nextUrl, { ...playerOptions, auto_play: autoPlay });
     }
   }));
 
