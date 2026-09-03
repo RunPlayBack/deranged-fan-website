@@ -1,14 +1,13 @@
 import {
   addMusicEntry,
   addVideoEntry,
-  deleteMusicEntry,
   deleteVideoEntry,
   signOut,
-  updateMusicEntry,
   updateSettings,
   updateVideoEntry,
   uploadBackgroundMedia
 } from "@/app/admin/actions";
+import { MusicAdminList } from "@/components/music-admin-list";
 import type { SiteSettings } from "@/lib/types";
 
 type Row = Record<string, any>;
@@ -166,35 +165,9 @@ export function AdminDashboard({
               <TextInput name="soundcloud_url" label="SoundCloud URL" />
               <TextInput name="title_override" label="Title override" />
               <TextInput name="artwork_override" label="Artwork override URL" />
-              <TextInput name="sort_order" label="Sort order" type="number" />
               <SaveButton>Add track</SaveButton>
             </form>
-            <div className="mt-8 space-y-5">
-              {music.map((entry) => (
-                <form key={entry.id} action={updateMusicEntry} className="border border-white/10 p-4">
-                  <input type="hidden" name="id" value={entry.id} />
-                  <div className="grid gap-4">
-                    <TextInput name="soundcloud_url" label="SoundCloud URL" defaultValue={entry.soundcloud_url} />
-                    <TextInput name="title_override" label="Title" defaultValue={entry.title_override} />
-                    <TextInput name="artwork_override" label="Artwork" defaultValue={entry.artwork_override} />
-                    <TextInput name="sort_order" label="Sort" type="number" defaultValue={String(entry.sort_order || 0)} />
-                    <label className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-white/56">
-                      <input name="visible" type="checkbox" defaultChecked={entry.visible} />
-                      Visible
-                    </label>
-                    <div className="flex gap-3">
-                      <SaveButton>Update</SaveButton>
-                      <button
-                        formAction={deleteMusicEntry}
-                        className="border border-white/12 px-4 py-3 text-xs uppercase tracking-[0.2em] text-white/52 transition-opacity hover:opacity-70"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              ))}
-            </div>
+            <MusicAdminList music={music} />
           </div>
 
           <div className="border border-white/12 bg-black p-6">

@@ -172,12 +172,15 @@ export async function uploadBackgroundMedia(formData: FormData) {
 
 export async function addMusicEntry(formData: FormData) {
   const supabase = await requireAdmin();
+  const { count } = await supabase
+    .from("music_overrides")
+    .select("*", { count: "exact", head: true });
 
   const { error } = await supabase.from("music_overrides").insert({
     soundcloud_url: value(formData, "soundcloud_url"),
     title_override: value(formData, "title_override"),
     artwork_override: value(formData, "artwork_override"),
-    sort_order: Number(value(formData, "sort_order") || 0),
+    sort_order: count || 0,
     visible: true,
     is_manual: true
   });
@@ -202,7 +205,6 @@ export async function updateMusicEntry(formData: FormData) {
       soundcloud_url: value(formData, "soundcloud_url"),
       title_override: value(formData, "title_override"),
       artwork_override: value(formData, "artwork_override"),
-      sort_order: Number(value(formData, "sort_order") || 0),
       visible: formData.get("visible") === "on",
       updated_at: new Date().toISOString()
     })
@@ -210,6 +212,42 @@ export async function updateMusicEntry(formData: FormData) {
 
   if (error) {
     throw error;
+  }
+
+  refreshAdmin("/admin", "/music");
+}
+
+export async function updateMusicOrder(formData: FormData) {
+  const supabase = await requireAdmin();
+  const rawIds = value(formData, "ids");
+
+  if (!rawIds) {
+    return;
+  }
+
+  let ids: string[];
+
+  try {
+    ids = JSON.parse(rawIds);
+  } catch {
+    adminError("The music order could not be saved. Please refresh and try again.");
+  }
+
+  const updates = ids.map((id, index) =>
+    supabase
+      .from("music_overrides")
+      .update({
+        sort_order: index,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id)
+  );
+
+  const results = await Promise.all(updates);
+  const error = results.find((result) => result.error)?.error;
+
+  if (error) {
+    adminError(error.message || "The music order could not be saved.");
   }
 
   refreshAdmin("/admin", "/music");
