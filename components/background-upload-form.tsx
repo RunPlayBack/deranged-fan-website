@@ -13,12 +13,13 @@ export function BackgroundUploadForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setBusy(true);
     setMessage("Preparing upload...");
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const form = new FormData(event.currentTarget);
+      const form = new FormData(formElement);
       const kind = String(form.get("kind") || "");
       const file = form.get("file");
 
@@ -52,7 +53,7 @@ export function BackgroundUploadForm() {
       await saveBackgroundMediaUrl({ kind: target.kind, publicUrl: target.publicUrl });
 
       setMessage("Upload saved.");
-      event.currentTarget.reset();
+      formElement.reset();
       window.location.reload();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Upload failed.");
