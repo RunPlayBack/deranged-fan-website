@@ -4,6 +4,7 @@ import { GripVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   deleteMusicEntry,
+  sortMusicNewestFirst,
   updateMusicEntry,
   updateMusicOrder
 } from "@/app/admin/actions";
@@ -63,7 +64,12 @@ export function MusicAdminList({ music }: { music: MusicRow[] }) {
           <p className="text-sm leading-6 text-white/58">
             Drag tracks into the order you want, then save the order.
           </p>
-          <SaveButton>Save order</SaveButton>
+          <div className="flex flex-wrap gap-3">
+            <AdminSubmitButton formAction={sortMusicNewestFirst} pendingChildren="Sorting...">
+              Newest first
+            </AdminSubmitButton>
+            <SaveButton>Save order</SaveButton>
+          </div>
         </div>
       </form>
 

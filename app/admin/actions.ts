@@ -424,6 +424,40 @@ export async function updateMusicOrder(formData: FormData) {
   refreshAdmin("/admin", "/music");
 }
 
+export async function sortMusicNewestFirst() {
+  const supabase = await requireAdmin();
+  const { data, error: readError } = await supabase
+    .from("music_overrides")
+    .select("id")
+    .order("created_at", { ascending: false })
+    .order("title_override", { ascending: true });
+
+  if (readError) {
+    adminError(readError.message || "The music order could not be sorted.");
+  }
+
+  const updates = (data || []).map((entry, index) =>
+    supabase
+      .from("music_overrides")
+      .update({
+        sort_order: index,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", entry.id)
+  );
+
+  const results = await Promise.all(updates);
+  const updateError = results.find((result) => result.error)?.error;
+
+  if (updateError) {
+    adminError(updateError.message || "The music order could not be sorted.");
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/music");
+  redirect("/admin?notice=Music sorted newest to oldest.");
+}
+
 export async function deleteMusicEntry(formData: FormData) {
   const supabase = await requireAdmin();
   const id = value(formData, "id");
