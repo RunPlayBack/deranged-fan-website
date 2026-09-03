@@ -8,10 +8,13 @@ type BackgroundVideoProps = {
   posterUrl?: string | null;
 };
 
+const FALLBACK_MOBILE_VIDEO_URL =
+  "https://ugfuairncdxyeiceotss.supabase.co/storage/v1/object/public/site-media/video/1788398731880-mobile-vertical.mp4";
+
 export function BackgroundVideo({ videoUrl, mobileVideoUrl, posterUrl }: BackgroundVideoProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsGesture, setNeedsGesture] = useState(false);
-  const effectiveMobileVideoUrl = mobileVideoUrl || videoUrl;
+  const effectiveMobileVideoUrl = mobileVideoUrl || FALLBACK_MOBILE_VIDEO_URL || videoUrl;
 
   useEffect(() => {
     const videos = Array.from(
