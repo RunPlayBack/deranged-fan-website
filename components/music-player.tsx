@@ -3,34 +3,29 @@ type MusicPlayerProps = {
   url: string;
 };
 
-export function MusicPlayer({ html, url }: MusicPlayerProps) {
-  if (html) {
-    return (
-      <>
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex w-full items-center justify-center border border-white/22 bg-black/40 px-5 py-4 text-xs uppercase tracking-[0.24em] text-white/82 transition-opacity hover:opacity-68 sm:hidden"
-        >
-          Listen on SoundCloud
-        </a>
-        <div
-          className="hidden [&_iframe]:w-full [&_iframe]:border-0 sm:block"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      </>
-    );
-  }
+export function MusicPlayer({ url }: MusicPlayerProps) {
+  const playerUrl = new URL("https://w.soundcloud.com/player/");
+  playerUrl.search = new URLSearchParams({
+    url,
+    color: "#ff5500",
+    auto_play: "false",
+    hide_related: "true",
+    show_comments: "false",
+    show_user: "true",
+    show_reposts: "false",
+    show_teaser: "false",
+    visual: "false",
+    buying: "false",
+    sharing: "false",
+    download: "false"
+  }).toString();
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex border border-white/22 px-5 py-3 text-xs uppercase tracking-[0.24em] text-white/82 transition-opacity hover:opacity-68"
-    >
-      Open on SoundCloud
-    </a>
+    <iframe
+      title="SoundCloud player"
+      src={playerUrl.toString()}
+      className="h-[166px] w-full border-0"
+      allow="autoplay"
+    />
   );
 }
