@@ -108,8 +108,13 @@ export function AdminDashboard({
               <TextInput name="youtube_url" label="YouTube social URL" defaultValue={settings.youtube_url} />
               <TextInput
                 name="background_video_url"
-                label="Background video URL"
+                label="Landscape background video URL"
                 defaultValue={settings.background_video_url}
+              />
+              <TextInput
+                name="background_mobile_video_url"
+                label="Vertical mobile video URL"
+                defaultValue={settings.background_mobile_video_url}
               />
               <TextInput
                 name="background_poster_url"
@@ -132,7 +137,8 @@ export function AdminDashboard({
                     name="kind"
                     className="mt-2 w-full border border-white/12 bg-neutral-950 px-3 py-3 text-sm text-white"
                   >
-                    <option value="video">Video</option>
+                    <option value="video">Landscape desktop video</option>
+                    <option value="mobile-video">Vertical mobile video</option>
                     <option value="poster">Poster image</option>
                   </select>
                 </label>
@@ -144,8 +150,8 @@ export function AdminDashboard({
                 />
                 <p className="text-sm leading-6 text-white/52">
                   This bucket allows up to 100 MB, but Supabase Free projects can still reject
-                  files over 50 MB at the project level. For the background loop, a compressed MP4
-                  or WebM under 25 MB will load much better on the final site.
+                  files over 50 MB at the project level. Use a landscape MP4/WebM for desktop and
+                  a vertical MP4/WebM for mobile. Smaller loops under 25 MB load much better.
                 </p>
                 <SaveButton>Upload</SaveButton>
               </div>

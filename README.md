@@ -49,7 +49,7 @@ A minimal, cinematic artist website built with Next.js App Router, TypeScript, T
 
 Visit `/admin` directly. It is not linked from the public site.
 
-Admin can edit site settings, add social links, set a YouTube channel ID, upload or replace the full-screen background video and poster image, add fallback SoundCloud entries, and add or reorder manual YouTube videos.
+Admin can edit site settings, add social links, set a YouTube channel ID, upload or replace the full-screen landscape background video, vertical mobile background video, and poster image, add fallback SoundCloud entries, and add or reorder manual YouTube videos.
 
 Supabase Free projects have a global 50 MB Storage upload limit. Keep background loops under 50 MB on Free, or use a Pro project for larger uploads. Smaller loops under 25 MB are best for the final site experience.
 

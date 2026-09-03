@@ -52,6 +52,14 @@ function adminError(message: string): never {
   redirect(`/admin?error=${encodeURIComponent(message)}`);
 }
 
+function normalizeSettingsError(message: string) {
+  if (message.includes("background_mobile_video_url")) {
+    return "The mobile video setting needs one quick Supabase update before it can save. Run the SQL in supabase/migrations/002_mobile_background_video.sql, then try again.";
+  }
+
+  return message;
+}
+
 async function ensureSiteMediaBucket(supabase: Awaited<ReturnType<typeof requireAdmin>>) {
   const storage = supabase.storage as any;
   const bucketOptions = {
@@ -84,12 +92,13 @@ export async function updateSettings(formData: FormData) {
     soundcloud_url: value(formData, "soundcloud_url"),
     youtube_url: value(formData, "youtube_url"),
     background_video_url: value(formData, "background_video_url"),
+    background_mobile_video_url: value(formData, "background_mobile_video_url"),
     background_poster_url: value(formData, "background_poster_url"),
     updated_at: new Date().toISOString()
   });
 
   if (error) {
-    throw error;
+    adminError(normalizeSettingsError(error.message));
   }
 
   refreshAdmin("/admin");
@@ -108,16 +117,19 @@ export async function uploadBackgroundMedia(formData: FormData) {
     adminError("That file is too large. Please use a video or image under 100 MB.");
   }
 
-  const isVideo = kind === "video" && file.type.startsWith("video/");
+  const isLandscapeVideo = kind === "video" && file.type.startsWith("video/");
+  const isMobileVideo = kind === "mobile-video" && file.type.startsWith("video/");
   const isPoster = kind === "poster" && file.type.startsWith("image/");
 
-  if (!isVideo && !isPoster) {
-    adminError("Unsupported file type. Please upload a video for Video or an image for Poster image.");
+  if (!isLandscapeVideo && !isMobileVideo && !isPoster) {
+    adminError(
+      "Unsupported file type. Please upload an MP4/WebM/MOV for video options or an image for Poster image."
+    );
   }
 
   await ensureSiteMediaBucket(supabase);
 
-  const extension = file.name.split(".").pop() || (isVideo ? "mp4" : "jpg");
+  const extension = file.name.split(".").pop() || (isPoster ? "jpg" : "mp4");
   const path = `${kind}/${Date.now()}.${extension}`;
   const { error } = await supabase.storage.from("site-media").upload(path, file, {
     cacheControl: "31536000",
@@ -136,14 +148,23 @@ export async function uploadBackgroundMedia(formData: FormData) {
   }
 
   const { data } = supabase.storage.from("site-media").getPublicUrl(path);
+  const settingsColumn = isLandscapeVideo
+    ? "background_video_url"
+    : isMobileVideo
+      ? "background_mobile_video_url"
+      : "background_poster_url";
   const { error: settingsError } = await supabase.from("site_settings").upsert({
     id: SETTINGS_ID,
-    [isVideo ? "background_video_url" : "background_poster_url"]: data.publicUrl,
+    [settingsColumn]: data.publicUrl,
     updated_at: new Date().toISOString()
   });
 
   if (settingsError) {
-    adminError(settingsError.message || "Upload saved, but the site settings could not be updated.");
+    adminError(
+      normalizeSettingsError(
+        settingsError.message || "Upload saved, but the site settings could not be updated."
+      )
+    );
   }
 
   refreshAdmin("/admin");
