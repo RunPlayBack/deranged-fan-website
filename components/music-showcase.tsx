@@ -7,6 +7,7 @@ import type { MusicEntry } from "@/lib/types";
 
 export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
   const [activeId, setActiveId] = useState(entries[0]?.id);
+  const [shouldAutoplay, setShouldAutoplay] = useState(false);
   const active = entries.find((entry) => entry.id === activeId) || entries[0];
   const otherEntries = useMemo(
     () => entries.filter((entry) => entry.id !== active.id),
@@ -33,7 +34,12 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
       </div>
       <h2 className="mt-6 text-base uppercase tracking-[0.28em] text-white/86">{active.title}</h2>
       <div className="mt-5">
-        <MusicPlayer html={active.player_html} url={active.soundcloud_url} />
+        <MusicPlayer
+          key={`${active.id}-${shouldAutoplay ? "play" : "load"}`}
+          html={active.player_html}
+          url={active.soundcloud_url}
+          autoPlay={shouldAutoplay}
+        />
       </div>
       {otherEntries.length ? (
         <div className="media-scroll mt-8 flex gap-4 overflow-x-auto pb-3">
@@ -41,7 +47,10 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
             <button
               key={entry.id}
               type="button"
-              onClick={() => setActiveId(entry.id)}
+              onClick={() => {
+                setShouldAutoplay(true);
+                setActiveId(entry.id);
+              }}
               className="min-w-44 border border-white/12 bg-black/38 p-3 text-left transition-opacity hover:opacity-72"
             >
               <span className="relative block aspect-square w-full bg-neutral-950">
