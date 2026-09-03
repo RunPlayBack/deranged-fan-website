@@ -45,6 +45,9 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("x-webkit-airplay", "deny");
     video.play().catch(() => {
       // Mobile browsers can still block autoplay in low power or data saver modes.
     });
