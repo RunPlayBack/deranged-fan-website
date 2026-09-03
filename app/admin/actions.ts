@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { SETTINGS_ID } from "@/lib/defaults";
+import { getSoundCloudProfileTracks } from "@/lib/soundcloud";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { parseYouTubeVideoId } from "@/lib/youtube";
@@ -279,6 +280,80 @@ export async function addMusicEntry(formData: FormData) {
   }
 
   refreshAdmin("/admin", "/music");
+}
+
+export async function syncSoundCloudTracks() {
+  const supabase = await requireAdmin();
+  const { data: settings } = await supabase
+    .from("site_settings")
+    .select("soundcloud_profile_url,soundcloud_url")
+    .eq("id", SETTINGS_ID)
+    .single();
+  const profileUrl =
+    settings?.soundcloud_profile_url ||
+    settings?.soundcloud_url ||
+    "https://soundcloud.com/derangedfan";
+
+  let tracks;
+
+  try {
+    tracks = await getSoundCloudProfileTracks(profileUrl);
+  } catch (error) {
+    adminError(error instanceof Error ? error.message : "Could not sync SoundCloud tracks.");
+  }
+
+  const { data: existing, error: existingError } = await supabase
+    .from("music_overrides")
+    .select("source_id,soundcloud_url,sort_order");
+
+  if (existingError) {
+    adminError(existingError.message || "Could not check existing tracks.");
+  }
+
+  const existingKeys = new Set(
+    (existing || []).flatMap((entry) => [
+      entry.source_id,
+      typeof entry.soundcloud_url === "string" ? entry.soundcloud_url.replace(/\/$/, "") : null
+    ])
+  );
+  const maxSortOrder = Math.max(-1, ...(existing || []).map((entry) => entry.sort_order || 0));
+  const missingTracks = tracks.filter(
+    (track) => !existingKeys.has(track.sourceId) && !existingKeys.has(track.url.replace(/\/$/, ""))
+  );
+
+  if (!missingTracks.length) {
+    revalidatePath("/admin");
+    redirect("/admin?notice=SoundCloud is already up to date.");
+  }
+
+  const now = new Date().toISOString();
+  const { error } = await supabase.from("music_overrides").insert(
+    missingTracks.map((track, index) => ({
+      source_id: track.sourceId,
+      soundcloud_url: track.url,
+      title_override: track.title,
+      artwork_override: track.artworkUrl,
+      visible: true,
+      sort_order: maxSortOrder + index + 1,
+      is_manual: false,
+      created_at: track.publishedAt || now,
+      updated_at: now
+    }))
+  );
+
+  if (error) {
+    adminError(error.message || "Could not save SoundCloud tracks.");
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/music");
+  redirect(
+    `/admin?notice=${encodeURIComponent(
+      `Added ${missingTracks.length} new SoundCloud ${
+        missingTracks.length === 1 ? "track" : "tracks"
+      }.`
+    )}`
+  );
 }
 
 export async function updateMusicEntry(formData: FormData) {

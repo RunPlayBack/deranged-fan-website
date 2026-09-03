@@ -3,6 +3,7 @@ import {
   addVideoEntry,
   deleteVideoEntry,
   signOut,
+  syncSoundCloudTracks,
   updateSettings,
   updateVideoEntry,
 } from "@/app/admin/actions";
@@ -81,13 +82,15 @@ export function AdminDashboard({
   music,
   videos,
   adminEmail,
-  errorMessage
+  errorMessage,
+  noticeMessage
 }: {
   settings: SiteSettings;
   music: Row[];
   videos: Row[];
   adminEmail: string;
   errorMessage?: string;
+  noticeMessage?: string;
 }) {
   return (
     <main className="min-h-screen bg-neutral-950 px-5 py-10 text-white">
@@ -109,6 +112,11 @@ export function AdminDashboard({
         {errorMessage ? (
           <div className="mt-6 border border-white/20 bg-white/8 px-5 py-4 text-sm leading-6 text-white/78">
             {errorMessage}
+          </div>
+        ) : null}
+        {noticeMessage ? (
+          <div className="mt-6 border border-white/20 bg-white/8 px-5 py-4 text-sm leading-6 text-white/78">
+            {noticeMessage}
           </div>
         ) : null}
 
@@ -174,7 +182,12 @@ export function AdminDashboard({
 
         <section className="grid gap-8 pb-12 lg:grid-cols-2">
           <div className="border border-white/12 bg-black p-6">
-            <h2 className="serif-display text-3xl uppercase tracking-[0.14em]">Music</h2>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="serif-display text-3xl uppercase tracking-[0.14em]">Music</h2>
+              <form action={syncSoundCloudTracks}>
+                <SaveButton>Sync SoundCloud</SaveButton>
+              </form>
+            </div>
             <form action={addMusicEntry} className="mt-7 grid gap-5">
               <TextInput name="soundcloud_url" label="SoundCloud URL" />
               <TextInput name="title_override" label="Title override" />

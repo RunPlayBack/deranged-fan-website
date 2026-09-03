@@ -48,7 +48,7 @@ async function getAdminData() {
 export default async function AdminPage({
   searchParams
 }: {
-  searchParams?: Promise<{ error?: string }>;
+  searchParams?: Promise<{ error?: string; notice?: string }>;
 }) {
   const params = searchParams ? await searchParams : {};
   if (!hasSupabaseEnv()) {
@@ -85,6 +85,7 @@ export default async function AdminPage({
       videos={adminData.videos}
       adminEmail={data.user.email || ""}
       errorMessage={params.error}
+      noticeMessage={params.notice}
     />
   );
 }
