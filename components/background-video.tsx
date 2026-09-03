@@ -20,9 +20,8 @@ export function BackgroundVideo({ videoUrl, mobileVideoUrl, posterUrl }: Backgro
     const videos = Array.from(
       containerRef.current?.querySelectorAll<HTMLVideoElement>("video") || []
     );
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (!videos.length || reducedMotion) {
+    if (!videos.length) {
       return;
     }
 

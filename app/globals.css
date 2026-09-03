@@ -100,10 +100,6 @@ select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .background-video-media {
-    display: none;
-  }
-
   *,
   *::before,
   *::after {
