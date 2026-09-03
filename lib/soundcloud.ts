@@ -39,8 +39,16 @@ function extractUserIdFromOEmbed(html?: string) {
     return null;
   }
 
-  const decoded = decodeURIComponent(html);
-  return decoded.match(/api\.soundcloud\.com\/users\/(\d+)/)?.[1] || null;
+  const rawMatch = html.match(/api(?:%2E|\.)soundcloud(?:%2E|\.)com(?:%2F|\/)users(?:%2F|\/)(\d+)/i);
+  if (rawMatch) {
+    return rawMatch[1];
+  }
+
+  try {
+    return decodeURIComponent(html).match(/api\.soundcloud\.com\/users\/(\d+)/)?.[1] || null;
+  } catch {
+    return null;
+  }
 }
 
 function extractNextFeedUrl(xml: string) {

@@ -302,6 +302,11 @@ export async function syncSoundCloudTracks() {
     adminError(error instanceof Error ? error.message : "Could not sync SoundCloud tracks.");
   }
 
+  if (!tracks.length) {
+    revalidatePath("/admin");
+    redirect("/admin?notice=SoundCloud returned no tracks for that profile.");
+  }
+
   const { data: existing, error: existingError } = await supabase
     .from("music_overrides")
     .select("source_id,soundcloud_url,sort_order");
@@ -311,10 +316,12 @@ export async function syncSoundCloudTracks() {
   }
 
   const existingKeys = new Set(
-    (existing || []).flatMap((entry) => [
-      entry.source_id,
-      typeof entry.soundcloud_url === "string" ? entry.soundcloud_url.replace(/\/$/, "") : null
-    ])
+    (existing || [])
+      .flatMap((entry) => [
+        entry.source_id,
+        typeof entry.soundcloud_url === "string" ? entry.soundcloud_url.replace(/\/$/, "") : null
+      ])
+      .filter(Boolean)
   );
   const maxSortOrder = Math.max(-1, ...(existing || []).map((entry) => entry.sort_order || 0));
   const missingTracks = tracks.filter(

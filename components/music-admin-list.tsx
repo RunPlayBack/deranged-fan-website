@@ -7,6 +7,7 @@ import {
   updateMusicEntry,
   updateMusicOrder
 } from "@/app/admin/actions";
+import { AdminSubmitButton } from "@/components/admin-submit-button";
 
 type MusicRow = Record<string, any>;
 
@@ -32,11 +33,7 @@ function TextInput({
 }
 
 function SaveButton({ children = "Update" }: { children?: React.ReactNode }) {
-  return (
-    <button className="border border-white/24 px-4 py-3 text-xs uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-70">
-      {children}
-    </button>
-  );
+  return <AdminSubmitButton pendingChildren="Saving...">{children}</AdminSubmitButton>;
 }
 
 function moveItem(items: MusicRow[], fromIndex: number, toIndex: number) {
@@ -118,8 +115,9 @@ export function MusicAdminList({ music }: { music: MusicRow[] }) {
               <div className="flex gap-3">
                 <SaveButton />
                 <button
+                  type="submit"
                   formAction={deleteMusicEntry}
-                  className="border border-white/12 px-4 py-3 text-xs uppercase tracking-[0.2em] text-white/52 transition-opacity hover:opacity-70"
+                  className="border border-white/12 px-4 py-3 text-xs uppercase tracking-[0.2em] text-white/52 transition-opacity hover:opacity-70 disabled:cursor-wait disabled:opacity-50"
                 >
                   Delete
                 </button>

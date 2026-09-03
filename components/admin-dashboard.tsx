@@ -7,6 +7,7 @@ import {
   updateSettings,
   updateVideoEntry,
 } from "@/app/admin/actions";
+import { AdminSubmitButton } from "@/components/admin-submit-button";
 import { BackgroundUploadForm } from "@/components/background-upload-form";
 import { MusicAdminList } from "@/components/music-admin-list";
 import type { SiteSettings } from "@/lib/types";
@@ -39,11 +40,7 @@ function TextInput({
 }
 
 function SaveButton({ children = "Save" }: { children?: React.ReactNode }) {
-  return (
-    <button className="border border-white/24 px-4 py-3 text-xs uppercase tracking-[0.2em] text-white transition-opacity hover:opacity-70">
-      {children}
-    </button>
-  );
+  return <AdminSubmitButton>{children}</AdminSubmitButton>;
 }
 
 function NumberInput({
@@ -185,7 +182,7 @@ export function AdminDashboard({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="serif-display text-3xl uppercase tracking-[0.14em]">Music</h2>
               <form action={syncSoundCloudTracks}>
-                <SaveButton>Sync SoundCloud</SaveButton>
+                <AdminSubmitButton pendingChildren="Syncing...">Sync SoundCloud</AdminSubmitButton>
               </form>
             </div>
             <form action={addMusicEntry} className="mt-7 grid gap-5">
