@@ -5,8 +5,8 @@ import {
   signOut,
   updateSettings,
   updateVideoEntry,
-  uploadBackgroundMedia
 } from "@/app/admin/actions";
+import { BackgroundUploadForm } from "@/components/background-upload-form";
 import { MusicAdminList } from "@/components/music-admin-list";
 import type { SiteSettings } from "@/lib/types";
 import Link from "next/link";
@@ -130,34 +130,7 @@ export function AdminDashboard({
           </form>
 
           <div className="space-y-8">
-            <form action={uploadBackgroundMedia} className="border border-white/12 bg-black p-6">
-              <h2 className="serif-display text-3xl uppercase tracking-[0.14em]">Background upload</h2>
-              <div className="mt-7 grid gap-5">
-                <label className="block text-xs uppercase tracking-[0.18em] text-white/56">
-                  Type
-                  <select
-                    name="kind"
-                    className="mt-2 w-full border border-white/12 bg-neutral-950 px-3 py-3 text-sm text-white"
-                  >
-                    <option value="video">Landscape desktop video</option>
-                    <option value="mobile-video">Vertical mobile video</option>
-                    <option value="poster">Poster image</option>
-                  </select>
-                </label>
-                <input
-                  name="file"
-                  type="file"
-                  accept="video/*,image/*"
-                  className="w-full border border-white/12 bg-white/7 px-3 py-3 text-sm text-white"
-                />
-                <p className="text-sm leading-6 text-white/52">
-                  This bucket allows up to 100 MB, but Supabase Free projects can still reject
-                  files over 50 MB at the project level. Use a landscape MP4/WebM for desktop and
-                  a vertical MP4/WebM for mobile. Smaller loops under 25 MB load much better.
-                </p>
-                <SaveButton>Upload</SaveButton>
-              </div>
-            </form>
+            <BackgroundUploadForm />
           </div>
         </section>
 

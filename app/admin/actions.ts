@@ -170,6 +170,80 @@ export async function uploadBackgroundMedia(formData: FormData) {
   refreshAdmin("/admin");
 }
 
+export async function createBackgroundUploadTarget({
+  kind,
+  fileName,
+  fileType,
+  fileSize
+}: {
+  kind: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+}) {
+  const supabase = await requireAdmin();
+
+  if (fileSize > MAX_UPLOAD_BYTES) {
+    throw new Error("That file is too large. Please use a video or image under 100 MB.");
+  }
+
+  const isLandscapeVideo = kind === "video" && fileType.startsWith("video/");
+  const isMobileVideo = kind === "mobile-video" && fileType.startsWith("video/");
+  const isPoster = kind === "poster" && fileType.startsWith("image/");
+
+  if (!isLandscapeVideo && !isMobileVideo && !isPoster) {
+    throw new Error(
+      "Unsupported file type. Please upload an MP4/WebM/MOV for video options or an image for Poster image."
+    );
+  }
+
+  await ensureSiteMediaBucket(supabase);
+
+  const extension = fileName.split(".").pop() || (isPoster ? "jpg" : "mp4");
+  const path = `${kind}/${Date.now()}.${extension}`;
+  const { data, error } = await supabase.storage.from("site-media").createSignedUploadUrl(path);
+
+  if (error) {
+    throw new Error(error.message || "Could not prepare the upload.");
+  }
+
+  return {
+    kind,
+    path,
+    token: data.token,
+    publicUrl: supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl
+  };
+}
+
+export async function saveBackgroundMediaUrl({
+  kind,
+  publicUrl
+}: {
+  kind: string;
+  publicUrl: string;
+}) {
+  const supabase = await requireAdmin();
+  const settingsColumn =
+    kind === "video"
+      ? "background_video_url"
+      : kind === "mobile-video"
+        ? "background_mobile_video_url"
+        : "background_poster_url";
+
+  const { error } = await supabase.from("site_settings").upsert({
+    id: SETTINGS_ID,
+    [settingsColumn]: publicUrl,
+    updated_at: new Date().toISOString()
+  });
+
+  if (error) {
+    throw new Error(normalizeSettingsError(error.message));
+  }
+
+  revalidatePath("/", "layout");
+  revalidatePath("/admin");
+}
+
 export async function addMusicEntry(formData: FormData) {
   const supabase = await requireAdmin();
   const { count } = await supabase
