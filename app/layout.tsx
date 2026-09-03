@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     settings.homepage_quote || "Just the sound of quiet thoughts after midnight.";
   const image = {
-    url: settings.background_poster_url || "/opengraph-image",
+    url: "/df-preview-image.jpg",
     width: 1200,
     height: 630,
     alt: title
