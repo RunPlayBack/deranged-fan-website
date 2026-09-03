@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/actions";
 import { MusicAdminList } from "@/components/music-admin-list";
 import type { SiteSettings } from "@/lib/types";
+import Link from "next/link";
 
 type Row = Record<string, any>;
 
@@ -64,7 +65,9 @@ export function AdminDashboard({
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-white/42">{adminEmail}</p>
             <h1 className="serif-display mt-3 text-5xl uppercase tracking-[0.16em]">
-              DERANGED FAN Admin
+              <Link href="/" className="transition-opacity hover:opacity-70">
+                DERANGED FAN Admin
+              </Link>
             </h1>
           </div>
           <form action={signOut}>
