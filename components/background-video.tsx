@@ -10,6 +10,7 @@ type BackgroundVideoProps = {
 export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [needsGesture, setNeedsGesture] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -45,8 +46,9 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
 
       try {
         await video.play();
+        setNeedsGesture(false);
       } catch {
-        // iOS may wait for the first page gesture, handled below.
+        setNeedsGesture(true);
       }
     };
 
@@ -71,8 +73,12 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
     video.addEventListener("canplay", tryPlay);
     window.addEventListener("pageshow", tryPlay);
     document.addEventListener("visibilitychange", handleVisibility);
-    document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
-    document.addEventListener("pointerdown", tryPlay, { once: true, passive: true });
+    const unlockPlayback = () => {
+      void tryPlay();
+    };
+
+    document.addEventListener("touchstart", unlockPlayback, { once: true, passive: true });
+    document.addEventListener("pointerdown", unlockPlayback, { once: true, passive: true });
 
     return () => {
       cancelled = true;
@@ -80,8 +86,8 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
       video.removeEventListener("canplay", tryPlay);
       window.removeEventListener("pageshow", tryPlay);
       document.removeEventListener("visibilitychange", handleVisibility);
-      document.removeEventListener("touchstart", tryPlay);
-      document.removeEventListener("pointerdown", tryPlay);
+      document.removeEventListener("touchstart", unlockPlayback);
+      document.removeEventListener("pointerdown", unlockPlayback);
     };
   }, [reducedMotion, videoUrl]);
 
@@ -109,6 +115,16 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
             string,
             string
           >)}
+        />
+      ) : null}
+      {videoUrl && needsGesture && !reducedMotion ? (
+        <button
+          type="button"
+          aria-label="Play background video"
+          onClick={() => {
+            void videoRef.current?.play().then(() => setNeedsGesture(false));
+          }}
+          className="absolute inset-0 z-20 cursor-default bg-transparent"
         />
       ) : null}
       <div className="absolute inset-0 bg-black/58" />
