@@ -4,28 +4,22 @@ import { useEffect, useRef, useState } from "react";
 
 type BackgroundVideoProps = {
   videoUrl?: string | null;
+  mobileVideoUrl?: string | null;
   posterUrl?: string | null;
 };
 
-export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+export function BackgroundVideo({ videoUrl, mobileVideoUrl, posterUrl }: BackgroundVideoProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [needsGesture, setNeedsGesture] = useState(false);
+  const effectiveMobileVideoUrl = mobileVideoUrl || videoUrl;
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updatePreference = () => setReducedMotion(mediaQuery.matches);
+    const videos = Array.from(
+      containerRef.current?.querySelectorAll<HTMLVideoElement>("video") || []
+    );
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    updatePreference();
-    mediaQuery.addEventListener("change", updatePreference);
-
-    return () => mediaQuery.removeEventListener("change", updatePreference);
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || !videoUrl || reducedMotion) {
+    if (!videos.length || reducedMotion) {
       return;
     }
 
@@ -36,20 +30,25 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
         return;
       }
 
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      video.setAttribute("muted", "");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-      video.setAttribute("x-webkit-airplay", "deny");
+      const attempts = videos.map(async (video) => {
+        video.muted = true;
+        video.defaultMuted = true;
+        video.playsInline = true;
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("x-webkit-airplay", "deny");
 
-      try {
-        await video.play();
-        setNeedsGesture(false);
-      } catch {
-        setNeedsGesture(true);
-      }
+        try {
+          await video.play();
+          return true;
+        } catch {
+          return false;
+        }
+      });
+
+      const results = await Promise.all(attempts);
+      setNeedsGesture(!results.some(Boolean));
     };
 
     const handleVisibility = () => {
@@ -58,19 +57,13 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
       }
     };
 
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("x-webkit-airplay", "deny");
-
-    video.load();
+    videos.forEach((video) => video.load());
     void tryPlay();
 
-    video.addEventListener("loadedmetadata", tryPlay);
-    video.addEventListener("canplay", tryPlay);
+    videos.forEach((video) => {
+      video.addEventListener("loadedmetadata", tryPlay);
+      video.addEventListener("canplay", tryPlay);
+    });
     window.addEventListener("pageshow", tryPlay);
     document.addEventListener("visibilitychange", handleVisibility);
     const unlockPlayback = () => {
@@ -82,27 +75,26 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
 
     return () => {
       cancelled = true;
-      video.removeEventListener("loadedmetadata", tryPlay);
-      video.removeEventListener("canplay", tryPlay);
+      videos.forEach((video) => {
+        video.removeEventListener("loadedmetadata", tryPlay);
+        video.removeEventListener("canplay", tryPlay);
+      });
       window.removeEventListener("pageshow", tryPlay);
       document.removeEventListener("visibilitychange", handleVisibility);
       document.removeEventListener("touchstart", unlockPlayback);
       document.removeEventListener("pointerdown", unlockPlayback);
     };
-  }, [reducedMotion, videoUrl]);
+  }, [videoUrl, effectiveMobileVideoUrl]);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-black" aria-hidden="true">
+    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden bg-black" aria-hidden="true">
       <div
         className="background-still absolute inset-0 bg-cover bg-center"
         style={posterUrl ? { backgroundImage: `url(${posterUrl})` } : undefined}
       />
-      {videoUrl && !reducedMotion ? (
+      {videoUrl ? (
         <video
-          key={videoUrl}
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover [transform:translateZ(0)]"
-          src={videoUrl}
+          className="background-video-media background-video-desktop"
           poster={posterUrl || undefined}
           autoPlay
           loop
@@ -115,14 +107,40 @@ export function BackgroundVideo({ videoUrl, posterUrl }: BackgroundVideoProps) {
             string,
             string
           >)}
-        />
+        >
+          <source src={videoUrl} type="video/mp4" />
+        </video>
       ) : null}
-      {videoUrl && needsGesture && !reducedMotion ? (
+      {effectiveMobileVideoUrl ? (
+        <video
+          className="background-video-media background-video-mobile"
+          poster={posterUrl || undefined}
+          autoPlay
+          loop
+          muted
+          playsInline
+          disablePictureInPicture
+          disableRemotePlayback
+          preload="metadata"
+          {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as Record<
+            string,
+            string
+          >)}
+        >
+          <source src={effectiveMobileVideoUrl} type="video/mp4" />
+        </video>
+      ) : null}
+      {(videoUrl || effectiveMobileVideoUrl) && needsGesture ? (
         <button
           type="button"
           aria-label="Play background video"
           onClick={() => {
-            void videoRef.current?.play().then(() => setNeedsGesture(false));
+            const videos = Array.from(
+              containerRef.current?.querySelectorAll<HTMLVideoElement>("video") || []
+            );
+            void Promise.all(videos.map((video) => video.play().catch(() => null))).then(() =>
+              setNeedsGesture(false)
+            );
           }}
           className="absolute inset-0 z-20 cursor-default bg-transparent"
         />

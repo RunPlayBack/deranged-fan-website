@@ -50,6 +50,30 @@ select:focus-visible {
     linear-gradient(135deg, #030303 0%, #151515 48%, #050505 100%);
 }
 
+.background-video-media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translateZ(0);
+}
+
+.background-video-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .background-video-desktop {
+    display: none;
+  }
+
+  .background-video-mobile {
+    display: block;
+  }
+}
+
 .serif-display {
   font-family: var(--font-display), Georgia, serif;
 }
@@ -76,6 +100,10 @@ select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .background-video-media {
+    display: none;
+  }
+
   *,
   *::before,
   *::after {

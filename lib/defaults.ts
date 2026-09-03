@@ -10,6 +10,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   soundcloud_url: null,
   youtube_url: null,
   background_video_url: null,
+  background_mobile_video_url:
+    "https://ugfuairncdxyeiceotss.supabase.co/storage/v1/object/public/site-media/video/1788398731880-mobile-vertical.mp4",
   background_poster_url: null
 };
 

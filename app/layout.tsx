@@ -47,6 +47,7 @@ export default async function RootLayout({
         <BackgroundVideo
           posterUrl={settings.background_poster_url}
           videoUrl={settings.background_video_url}
+          mobileVideoUrl={settings.background_mobile_video_url}
         />
         <div className="relative z-10 min-h-screen">
           <Navigation siteTitle={settings.site_title} />

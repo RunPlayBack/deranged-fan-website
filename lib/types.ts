@@ -8,6 +8,7 @@ export type SiteSettings = {
   soundcloud_url: string | null;
   youtube_url: string | null;
   background_video_url: string | null;
+  background_mobile_video_url: string | null;
   background_poster_url: string | null;
 };
 
