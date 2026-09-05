@@ -5,24 +5,24 @@ const SPOTIFY_EMBED_URL = "https://open.spotify.com/embed/album/0zZPAmPzBFHj3NXi
 
 export function SpotifyAlbum() {
   return (
-    <section className="mx-auto mt-12 w-full max-w-xl border border-white/14 bg-black/44 p-4 text-left backdrop-blur-sm sm:p-5">
-      <div className="grid gap-5 sm:grid-cols-[128px_1fr] sm:items-center">
+    <section className="mx-auto mt-12 w-full max-w-xl border border-white/14 bg-black/44 p-4 text-center backdrop-blur-sm sm:p-5">
+      <div className="mx-auto flex max-w-[420px] flex-col items-center gap-5">
         <a
           href={SPOTIFY_ALBUM_URL}
           target="_blank"
           rel="noreferrer"
           aria-label="Open Almost Somewhere by Deranged Fan on Spotify"
-          className="relative mx-auto block aspect-square w-full max-w-[220px] overflow-hidden bg-neutral-950 sm:max-w-none"
+          className="relative block aspect-square w-full max-w-[220px] overflow-hidden bg-neutral-950"
         >
           <Image
             src="/almost-somewhere.jpg"
             alt="Almost Somewhere album artwork"
             fill
-            sizes="(max-width: 640px) 220px, 128px"
+            sizes="220px"
             className="object-cover"
           />
         </a>
-        <div className="min-w-0 text-center sm:text-left">
+        <div className="min-w-0">
           <p className="text-[0.68rem] uppercase tracking-[0.24em] text-white/48">Spotify album</p>
           <h2 className="mt-2 text-base uppercase tracking-[0.2em] text-white/88">
             Almost Somewhere
