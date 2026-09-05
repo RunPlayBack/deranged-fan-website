@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { type WheelEvent, useMemo, useRef, useState } from "react";
 import { MusicPlayer, type MusicPlayerHandle } from "@/components/music-player";
 import type { MusicEntry } from "@/lib/types";
 
@@ -13,6 +13,27 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
     () => entries.filter((entry) => entry.id !== active.id),
     [active.id, entries]
   );
+
+  function scrollReleases(event: WheelEvent<HTMLDivElement>) {
+    const scroller = event.currentTarget;
+
+    if (
+      Math.abs(event.deltaX) >= Math.abs(event.deltaY) ||
+      scroller.scrollWidth <= scroller.clientWidth
+    ) {
+      return;
+    }
+
+    const nextScroll = scroller.scrollLeft + event.deltaY;
+    const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+
+    if (nextScroll < 0 || nextScroll > maxScroll) {
+      return;
+    }
+
+    event.preventDefault();
+    scroller.scrollLeft = nextScroll;
+  }
 
   return (
     <div className="mx-auto max-w-xl">
@@ -37,7 +58,10 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
         <MusicPlayer ref={playerRef} html={active.player_html} url={active.soundcloud_url} />
       </div>
       {otherEntries.length ? (
-        <div className="media-scroll mt-8 flex gap-4 overflow-x-auto pb-3 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
+        <div
+          onWheel={scrollReleases}
+          className="media-scroll mt-8 flex gap-4 overflow-x-auto pb-3"
+        >
           {otherEntries.map((entry) => (
             <button
               key={entry.id}
@@ -46,7 +70,7 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
                 setActiveId(entry.id);
                 playerRef.current?.loadAndPlay(entry.soundcloud_url);
               }}
-              className="min-w-44 border border-white/12 bg-black/38 p-3 text-left transition-opacity hover:opacity-72 sm:w-44 sm:min-w-0"
+              className="min-w-44 border border-white/12 bg-black/38 p-3 text-left transition duration-200 hover:border-white/34 hover:bg-black/58 focus-visible:border-white/60"
             >
               <span className="relative block aspect-square w-full bg-neutral-950">
                 {entry.artwork_url ? (
