@@ -37,7 +37,7 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
         <MusicPlayer ref={playerRef} html={active.player_html} url={active.soundcloud_url} />
       </div>
       {otherEntries.length ? (
-        <div className="media-scroll mt-8 flex gap-4 overflow-x-auto pb-3">
+        <div className="media-scroll mt-8 flex gap-4 overflow-x-auto pb-3 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
           {otherEntries.map((entry) => (
             <button
               key={entry.id}
@@ -46,7 +46,7 @@ export function MusicShowcase({ entries }: { entries: MusicEntry[] }) {
                 setActiveId(entry.id);
                 playerRef.current?.loadAndPlay(entry.soundcloud_url);
               }}
-              className="min-w-44 border border-white/12 bg-black/38 p-3 text-left transition-opacity hover:opacity-72"
+              className="min-w-44 border border-white/12 bg-black/38 p-3 text-left transition-opacity hover:opacity-72 sm:w-44 sm:min-w-0"
             >
               <span className="relative block aspect-square w-full bg-neutral-950">
                 {entry.artwork_url ? (
