@@ -1,0 +1,49 @@
+import Image from "next/image";
+
+const SPOTIFY_ALBUM_URL = "https://open.spotify.com/album/0zZPAmPzBFHj3NXivYvAnY";
+const SPOTIFY_EMBED_URL = "https://open.spotify.com/embed/album/0zZPAmPzBFHj3NXivYvAnY";
+
+export function SpotifyAlbum() {
+  return (
+    <section className="mx-auto mt-12 w-full max-w-xl border border-white/14 bg-black/44 p-4 text-left backdrop-blur-sm sm:p-5">
+      <div className="grid gap-5 sm:grid-cols-[128px_1fr] sm:items-center">
+        <a
+          href={SPOTIFY_ALBUM_URL}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open Almost Somewhere by Deranged Fan on Spotify"
+          className="relative mx-auto block aspect-square w-full max-w-[220px] overflow-hidden bg-neutral-950 sm:max-w-none"
+        >
+          <Image
+            src="/almost-somewhere.jpg"
+            alt="Almost Somewhere album artwork"
+            fill
+            sizes="(max-width: 640px) 220px, 128px"
+            className="object-cover"
+          />
+        </a>
+        <div className="min-w-0 text-center sm:text-left">
+          <p className="text-[0.68rem] uppercase tracking-[0.24em] text-white/48">Spotify album</p>
+          <h2 className="mt-2 text-base uppercase tracking-[0.2em] text-white/88">
+            Almost Somewhere
+          </h2>
+          <a
+            href={SPOTIFY_ALBUM_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center border border-white/16 px-4 py-2 text-[0.7rem] uppercase tracking-[0.22em] text-white/76 transition hover:bg-white hover:text-black"
+          >
+            Listen on Spotify
+          </a>
+        </div>
+      </div>
+      <iframe
+        title="Almost Somewhere by Deranged Fan on Spotify"
+        src={SPOTIFY_EMBED_URL}
+        className="mt-5 h-[152px] w-full border-0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+      />
+    </section>
+  );
+}
